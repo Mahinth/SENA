@@ -9,7 +9,7 @@
  *   - Updating the results panel and activity log
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 // ─── State ─────────────────────────────────────────────────
 
