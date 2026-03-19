@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Cascade Lab — Interactive simulation of idea diffusion using coordination games on social networks">
+    <title>Network Cascade Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ─── HEADER ─── -->
+    <header class="app-header" id="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="4" fill="#4ade80" opacity="0.9"/>
+                        <circle cx="28" cy="12" r="3.5" fill="#60a5fa" opacity="0.9"/>
+                        <circle cx="20" cy="28" r="4.5" fill="#f472b6" opacity="0.9"/>
+                        <circle cx="8" cy="28" r="3" fill="#fbbf24" opacity="0.9"/>
+                        <circle cx="32" cy="28" r="3" fill="#a78bfa" opacity="0.9"/>
+                        <line x1="12" y1="12" x2="28" y2="12" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="12" y1="12" x2="20" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="28" y1="12" x2="20" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="8" y1="28" x2="20" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="20" y1="28" x2="32" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="12" y1="12" x2="8" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                        <line x1="28" y1="12" x2="32" y2="28" stroke="#94a3b8" stroke-width="1.2" opacity="0.4"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1>Network Cascade Lab</h1>
+                    <p class="subtitle">Coordination Game Diffusion Simulator</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="connection-status" id="connection-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="app-main">
+        <!-- LEFT PANEL: Controls -->
+        <aside class="panel control-panel" id="control-panel">
+            <div class="panel-header">
+                <h2>⚙️ Simulation Controls</h2>
+            </div>
+
+            <!-- Network Info Card -->
+            <div class="card network-info-card" id="network-info-card">
+                <h3>📊 Network Overview</h3>
+                <div class="info-grid" id="network-info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Nodes</span>
+                        <span class="info-value" id="info-nodes">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Edges</span>
+                        <span class="info-value" id="info-edges">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Density</span>
+                        <span class="info-value" id="info-density">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Avg Degree</span>
+                        <span class="info-value" id="info-degree">—</span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label">Departments</span>
+                        <span class="info-value" id="info-departments">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulation Parameters -->
+            <div class="card params-card">
+                <h3>🎯 Parameters</h3>
+
+                <!-- Threshold Slider -->
+                <div class="param-group" id="threshold-group">
+                    <label class="param-label" for="threshold-slider">
+                        Adoption Threshold (θ)
+                        <span class="param-tooltip" title="Fraction of neighbors that must have adopted for a node to adopt">ⓘ</span>
+                    </label>
+                    <div class="slider-row">
+                        <input type="range" id="threshold-slider" class="slider"
+                               min="0.05" max="0.95" step="0.05" value="0.25">
+                        <span class="slider-value" id="threshold-value">0.25</span>
+                    </div>
+                    <div class="slider-hints">
+                        <span>Easy (0.05)</span>
+                        <span>Hard (0.95)</span>
+                    </div>
+                </div>
+
+                <!-- Number of Seeds -->
+                <div class="param-group" id="seeds-group">
+                    <label class="param-label" for="seeds-input">
+                        Seed Nodes
+                        <span class="param-tooltip" title="Number of initial adopters to start the cascade">ⓘ</span>
+                    </label>
+                    <div class="input-row">
+                        <input type="number" id="seeds-input" class="num-input"
+                               min="1" max="50" value="10">
+                        <select id="seed-strategy" class="select-input">
+                            <option value="random">Random</option>
+                            <option value="high_degree">High Degree</option>
+                            <option value="low_degree">Low Degree</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Homophily Weight -->
+                <div class="param-group" id="homophily-group">
+                    <label class="param-label" for="homophily-slider">
+                        Homophily Weight
+                        <span class="param-tooltip" title="Extra influence weight for same-department neighbors (0 = none)">ⓘ</span>
+                    </label>
+                    <div class="slider-row">
+                        <input type="range" id="homophily-slider" class="slider"
+                               min="0" max="3" step="0.25" value="0">
+                        <span class="slider-value" id="homophily-value">0.00</span>
+                    </div>
+                    <div class="slider-hints">
+                        <span>No bias</span>
+                        <span>Strong bias</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card actions-card">
+                <button class="btn btn-primary" id="btn-simulate" onclick="runSimulation()">
+                    <span class="btn-icon">▶</span>
+                    Run Simulation
+                </button>
+                <button class="btn btn-secondary" id="btn-sweep" onclick="runThresholdSweep()">
+                    <span class="btn-icon">📊</span>
+                    Threshold Sweep
+                </button>
+            </div>
+        </aside>
+
+        <!-- RIGHT PANEL: Results -->
+        <section class="panel results-panel" id="results-panel">
+            <div class="panel-header">
+                <h2>📈 Results</h2>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="card results-summary-card hidden" id="results-summary">
+                <h3>🎯 Cascade Result</h3>
+                <div class="results-metrics">
+                    <div class="metric">
+                        <span class="metric-value" id="result-adoption">—</span>
+                        <span class="metric-label">Adoption Rate</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="result-adopted">—</span>
+                        <span class="metric-label">Nodes Adopted</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="result-steps">—</span>
+                        <span class="metric-label">Steps to Converge</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value" id="result-threshold">—</span>
+                        <span class="metric-label">Threshold Used</span>
+                    </div>
+                </div>
+                <div class="result-verdict" id="result-verdict"></div>
+            </div>
+
+            <!-- Cascade Chart -->
+            <div class="card chart-card" id="cascade-chart-card">
+                <h3>📈 Cascade Over Time</h3>
+                <div class="chart-container" id="cascade-chart-container">
+                    <canvas id="cascade-chart" width="600" height="320"></canvas>
+                    <div class="chart-placeholder" id="cascade-placeholder">
+                        <div class="placeholder-icon">📊</div>
+                        <p>Run a simulation to see the cascade progression</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Threshold Sweep Chart -->
+            <div class="card chart-card" id="sweep-chart-card">
+                <h3>📊 Adoption vs Threshold</h3>
+                <div class="chart-container" id="sweep-chart-container">
+                    <canvas id="sweep-chart" width="600" height="320"></canvas>
+                    <div class="chart-placeholder" id="sweep-placeholder">
+                        <div class="placeholder-icon">📈</div>
+                        <p>Run a threshold sweep to see the phase transition</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Output -->
+            <div class="card log-card" id="log-card">
+                <h3>📋 Activity Log</h3>
+                <div class="log-container" id="log-container">
+                    <div class="log-entry log-info">Welcome to Network Cascade Lab! Configure parameters and click "Run Simulation" to begin.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
